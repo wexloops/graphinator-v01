@@ -1,154 +1,53 @@
 # Graphinator
 
-AI-powered flowchart and decision tree generator using Claude.
+Turn any idea into a graph you can explore.
 
-## Features
+![Graphinator mapping synesthesia as a concept map](docs/screenshot.webp)
 
-### Core Functionality
-- **AI-Powered Generation** - Generate flowcharts, decision trees, or neural diagrams from text prompts
-- **Three Diagram Types** - Flow Chart, Decision Tree, Neural Diagram modes
-- **Natural Language Editing** - Modify existing diagrams through conversational prompts
-- **Real-Time Text Breakdown** - Live-synced panel showing overview, steps, decisions, and outcomes
+Type a concept, a question or a process, or drop in a document. Graphinator maps it with Claude, lays it out, and lets you keep going from any node: expand it, ask for an explanation, edit it, or tell the whole graph how to change.
 
-### Interactive Editing
-- **Editable Nodes** - Double-click nodes to rename them
-- **Color Customization** - Click color button on nodes to change their color (6 color options)
-- **Drag & Drop** - Reposition nodes freely
-- **Create Connections** - Drag from node handles to create new edges
-- **Delete Edges** - Select edges and press Delete key to remove connections
-- **Reconnect Nodes** - Delete old edges and create new ones to restructure the flow
+## What it makes
 
-### Visual Design
-- **Dark Mode UI** - Beautiful dark interface with glass-morphic elements
-- **Animated Flow** - Luminous particles flow through edges from start to finish
-- **Glow Effects** - Nodes have subtle glowing halos that intensify on hover
-- **Smooth Animations** - Transitions, hover states, and interactions are fluid
+| Kind | Good for |
+| --- | --- |
+| Concept map | Ideas and how they relate, with cross-links |
+| Mind map | One central idea branching outward |
+| Flowchart | A process, step by step |
+| Decision tree | Questions that branch into outcomes |
+| Timeline | Events in order |
 
-### Presets & Persistence
-- **Save Presets** - Save current flowchart with a custom name to browser storage
-- **Load Presets** - Browse and load previously saved flowcharts
-- **Export JSON** - Download diagram as JSON file to desktop
-- **Import JSON** - Upload JSON files from desktop to restore diagrams
-- **New Projects** - Clear current work and start fresh
-- **LocalStorage** - Presets stored locally in browser
+Any graph can be re-laid out as any other kind with one click.
 
-### Layout & Organization
-- **Auto-Organize** - Automatically arrange nodes in hierarchical layout
-- **Smart Layout** - BFS-based algorithm positions nodes by levels
-- **Manual Override** - Drag nodes freely after auto-organization
+## Working with a graph
 
-## Setup
+- **Expand** a node to grow 3 to 6 new ideas from it, optionally toward a direction you type.
+- **Explain** a node for two short paragraphs on what it is and how it connects.
+- **Change** the whole graph in plain words: "add the economics", "make it simpler", "split the history branch by decade".
+- Click a group in the legend to isolate it. Drag between nodes to connect them. Delete removes the selected node.
+- Every graph is saved to the **Library** on this computer.
+- **Export** to PNG, SVG, a Markdown outline, Mermaid (pastes into GitHub and Notion), or a Graphinator file you can open again.
 
-1. Install dependencies:
+## Run it
+
 ```bash
+git clone https://github.com/wexloops/graphinator-v01.git graphinator
+cd graphinator
 npm install
+npm run dev             # http://localhost:3012
 ```
 
-2. Create `.env` file:
-```bash
-cp .env.example .env
-```
+Click **API key** in the top bar and paste your Anthropic key. Graphinator checks it with Anthropic and saves it to `.env` in this folder. You can also put `ANTHROPIC_API_KEY=...` in `.env` yourself (see `.env.example`); the app's `.env` takes priority over a key exported in your shell.
 
-3. Add your Anthropic API key to `.env`:
-```
-VITE_ANTHROPIC_API_KEY=sk-ant-...
-```
+`npm run build && npm start` serves the production build on the same port. **See an example** on the start screen works without a key.
 
-4. Start development server:
-```bash
-npm run dev
-```
+The key is read by the local server only and is never sent to the browser. Key changes are accepted only from `localhost`. Graphinator uses `claude-opus-5-5` by default; set `GRAPHINATOR_MODEL` in `.env` to use another model. Requests use structured outputs, so every reply is a valid graph.
 
-5. Open http://localhost:3012
+## Stack
 
-## Usage
+React, [React Flow](https://reactflow.dev), [ELK](https://eclipse.dev/elk/) for layout, the Anthropic TypeScript SDK, Zod, Vite. `npm test` runs the layout, schema and export tests.
 
-### Choose Diagram Type
-Bottom left toggle lets you select:
-- **Flow Chart** - Sequential processes, linear/branching flows
-- **Decision Tree** - Hierarchical branching logic with decision points
-- **Neural Diagram** - Network-style interconnected nodes with layers
+## History
 
-### Generate Diagrams
-1. Select diagram type
-2. Enter a description (e.g., "Create a user authentication flow")
-3. Click Generate
-4. View the interactive diagram and text breakdown
+Version 3 replaces both Graphinator v1 (flowcharts from prompts) and Graphinator Pro (AI media workflows). It keeps one job, mapping ideas, and does it properly. The earlier code is in this repository's history.
 
-### Edit Diagrams
-**Modify with AI:**
-- Enter changes in prompt (e.g., "Add a payment verification step after login")
-- AI updates the existing diagram while preserving structure
-
-**Edit Nodes Directly:**
-- **Rename**: Double-click node label, type new name, press Enter
-- **Change Color**: Click color dot on node, select from 6 colors
-- **Move**: Drag nodes to reposition
-- **Delete**: Select node and press Delete key
-
-**Edit Connections:**
-- **Create Edge**: Drag from any node handle to another node
-- **Delete Edge**: Select edge and press Delete key
-- **Reconnect**: Delete old edge and create new one
-
-### Advanced Interactions
-- **Zoom**: Use mouse wheel or controls
-- **Pan**: Click and drag canvas
-- **Multi-Select**: Hold Shift and click multiple items
-- **Fit View**: Use controls to reset viewport
-
-### Manage Presets & Files
-**Presets (Browser Storage):**
-- **New**: Clear current diagram (confirmation if unsaved)
-- **Save**: Name and save current diagram to browser
-- **Load**: Browse saved presets (shows timestamp and node count)
-- **Delete**: Click × on any preset to remove it
-
-**File Operations:**
-- **Export**: Download diagram as JSON file (`graphinator-YYYY-MM-DD.json`)
-- **Import**: Upload JSON file from desktop to restore diagram
-- **Format**: Compatible with Graphinator V01 JSON format
-
-**Auto-Organization:**
-- **Auto-Organize**: Click ⚡ button to automatically arrange nodes
-- **Hierarchical Layout**: Positions nodes by level using breadth-first traversal
-- **Root Detection**: Automatically identifies starting nodes
-- **Spacing**: 150px vertical, 250px horizontal between nodes
-
-## Architecture
-
-- **React + Vite** - Fast development and build
-- **ReactFlow** - Interactive flowchart rendering
-- **Claude API** - AI-powered diagram generation
-- **localStorage** - Preset persistence
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Header.jsx              # Top bar with actions and app info
-│   ├── FlowDiagram.jsx         # ReactFlow integration with custom nodes/edges
-│   ├── CustomNode.jsx          # Editable nodes with color picker
-│   ├── AnimatedEdge.jsx        # Edges with animated flow particles
-│   ├── DiagramTypeToggle.jsx   # Diagram type selector
-│   ├── TextBreakdown.jsx       # Left panel breakdown
-│   ├── PromptInput.jsx         # Bottom prompt interface
-│   └── PresetModal.jsx         # Save/Load modal
-├── lib/
-│   ├── claude.js               # Claude API with diagram-type-specific prompts
-│   ├── presets.js              # localStorage preset management
-│   ├── fileOperations.js       # JSON export/import functionality
-│   └── autoLayout.js           # Auto-organize layout algorithm
-├── styles/
-│   └── index.css               # Dark mode styling with animations
-└── App.jsx                     # Main application state and logic
-```
-
-## Keyboard Shortcuts
-
-- **Delete** - Delete selected nodes or edges
-- **Shift + Click** - Multi-select items
-- **Enter** - Confirm node rename
-- **Escape** - Cancel node rename
-- **Double-Click** - Edit node label
+MIT License. Made by [HYPRGRPH](https://hyprgrph.xyz).

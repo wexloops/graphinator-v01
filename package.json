@@ -1,23 +1,32 @@
 {
   "name": "graphinator",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
+  "type": "module",
+  "description": "Turn any concept into a graph you can explore.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "vite --port 3012",
+    "build": "tsc --noEmit && vite build",
+    "start": "vite preview --port 3012",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "reactflow": "^11.10.4",
-    "@anthropic-ai/sdk": "^0.32.1",
-    "zustand": "^4.5.0"
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@xyflow/react": "^12.12.0",
+    "elkjs": "^0.12.0",
+    "html-to-image": "^1.11.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/react": "^18.2.56",
-    "@types/react-dom": "^18.2.19",
-    "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.1.0"
+    "@types/node": "^26.6.5",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^7.0.2",
+    "vite": "^6.4.4",
+    "vitest": "^3.2.7"
   }
 }
