@@ -55,10 +55,30 @@ async function saveKey(key: string): Promise<{ ok: true }> {
   return { ok: true };
 }
 
-/** Only accept key changes from this machine's own browser. */
+const LOOPBACK = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+
+/** Key changes only from a process on this machine (the socket address cannot be spoofed like the Host header). */
 function isLocal(req: IncomingMessage): boolean {
-  const host = (req.headers.host ?? '').toLowerCase();
-  return /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
+  return LOOPBACK.has(req.socket.remoteAddress ?? '');
+}
+
+/**
+ * Block cross-site requests, so a web page open in the same browser cannot spend credits or swap the key.
+ * Browsers send Sec-Fetch-Site and Origin on cross-site POSTs; requiring a JSON content type also forces
+ * a CORS preflight, which this server never approves.
+ */
+function sameOrigin(req: IncomingMessage): boolean {
+  const site = req.headers['sec-fetch-site'];
+  if (site && site !== 'same-origin' && site !== 'none') return false;
+  const origin = req.headers.origin;
+  if (origin) {
+    try {
+      if (new URL(origin).host !== req.headers.host) return false;
+    } catch {
+      return false;
+    }
+  }
+  return (req.headers['content-type'] ?? '').startsWith('application/json');
 }
 
 const SYSTEM = `You are Graphinator. You turn concepts, questions, and documents into clear, insightful graphs.
@@ -205,6 +225,7 @@ export function apiMiddleware() {
     }
     if (url === '/api/key') {
       if (req.method !== 'POST') return send(res, 405, { error: 'POST only.' });
+      if (!sameOrigin(req)) return send(res, 403, { error: 'Cross-site request refused.' });
       if (!isLocal(req)) return send(res, 403, { error: 'Open Graphinator at localhost on this computer to change the key.' });
       try {
         const body = (await readJson(req)) as { key?: string };
@@ -216,6 +237,7 @@ export function apiMiddleware() {
     const route = ROUTES[url];
     if (!route) return next();
     if (req.method !== 'POST') return send(res, 405, { error: 'POST only.' });
+    if (!sameOrigin(req)) return send(res, 403, { error: 'Cross-site request refused.' });
     try {
       if (!hasCredentials()) throw new HttpError(503, 'Add your Anthropic API key to start mapping.');
       send(res, 200, await route((await readJson(req)) as never));
