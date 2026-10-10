@@ -63,11 +63,23 @@ function isLocal(req: IncomingMessage): boolean {
 }
 
 /**
+ * DNS-rebinding guard: a hostile domain can resolve to 127.0.0.1, but the browser still sends that domain
+ * as Host. Only answer requests addressed to a loopback name. Set GRAPHINATOR_ALLOWED_HOSTS
+ * (comma-separated) to serve the app under another name on purpose.
+ */
+function localHost(req: IncomingMessage): boolean {
+  const host = (req.headers.host ?? '').toLowerCase().replace(/:\d+$/, '');
+  const extra = (process.env.GRAPHINATOR_ALLOWED_HOSTS ?? '').toLowerCase().split(',').map((h) => h.trim()).filter(Boolean);
+  return ['localhost', '127.0.0.1', '[::1]', ...extra].includes(host);
+}
+
+/**
  * Block cross-site requests, so a web page open in the same browser cannot spend credits or swap the key.
  * Browsers send Sec-Fetch-Site and Origin on cross-site POSTs; requiring a JSON content type also forces
  * a CORS preflight, which this server never approves.
  */
 function sameOrigin(req: IncomingMessage): boolean {
+  if (!localHost(req)) return false;
   const site = req.headers['sec-fetch-site'];
   if (site && site !== 'same-origin' && site !== 'none') return false;
   const origin = req.headers.origin;
@@ -219,6 +231,7 @@ async function readJson(req: IncomingMessage): Promise<unknown> {
 export function apiMiddleware() {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const url = (req.url ?? '').split('?')[0];
+    if (url.startsWith('/api/') && !localHost(req)) return send(res, 403, { error: 'Graphinator only answers on localhost.' });
     if (url === '/api/status') {
       const state = await checkKey();
       return send(res, 200, { ready: state === 'valid' || state === 'unchecked', key: state, model: MODEL, canSetKey: isLocal(req) });
