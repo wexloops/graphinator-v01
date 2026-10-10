@@ -2,6 +2,8 @@
 
 Turn any idea into a graph you can explore.
 
+<sub>An open-source tool from <a href="https://hyprgrph.xyz"><b>HYPRGRPH</b></a> · <a href="https://hyprgrph.xyz/#source">more tools</a></sub>
+
 ![Graphinator mapping synesthesia as a concept map](docs/screenshot.webp)
 
 Type a concept, a question or a process, or drop in a document. Graphinator maps it with Claude, lays it out, and lets you keep going from any node: expand it, ask for an explanation, edit it, or tell the whole graph how to change.
@@ -50,4 +52,8 @@ React, [React Flow](https://reactflow.dev), [ELK](https://eclipse.dev/elk/) for 
 
 Version 3 replaces both Graphinator v1 (flowcharts from prompts) and Graphinator Pro (AI media workflows). It keeps one job, mapping ideas, and does it properly. The earlier code is in this repository's history.
 
-MIT License. Made by [HYPRGRPH](https://hyprgrph.xyz).
+MIT License.
+
+---
+
+<p align="center"><a href="https://hyprgrph.xyz"><b>HYPRGRPH</b></a><br><sub>Graphinator is one of the tools HYPRGRPH builds for its own work and shares openly. See the rest at <a href="https://hyprgrph.xyz/#source">hyprgrph.xyz</a>.</sub></p>
